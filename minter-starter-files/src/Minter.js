@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connectWallet } from "./utils/interact.js";
+import { connectWallet, mintNFT } from "./utils/interact.js";
 
 const Minter = (props) => {
 
@@ -39,8 +39,9 @@ const Minter = (props) => {
       }
   };
 
-  const onMintPressed = async () => { //TODO: implement
-    
+  const onMintPressed = async () => {
+      const { status } = await mintNFT(url);
+      setStatus(status);
   };
 
   return (
@@ -59,7 +60,7 @@ const Minter = (props) => {
       <br></br>
       <h1 id="title">🧙‍♂️ Alchemy NFT Minter</h1>
       <p>
-        Simply add your asset's link, name, and description, then press "Mint."
+        Simply add your asset's link then press "Mint."
       </p>
       <form>
         <h2>🖼 Link to asset: </h2>
