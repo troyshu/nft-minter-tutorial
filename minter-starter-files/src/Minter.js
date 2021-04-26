@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { connectWallet } from "./utils/interact.js";
 
 const Minter = (props) => {
 
@@ -6,16 +7,36 @@ const Minter = (props) => {
   const [isConnected, setConnectedStatus] = useState(false);
   const [walletAddress, setWallet] = useState("");
   const [status, setStatus] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
   const [url, setURL] = useState("");
  
-  useEffect(async () => { //TODO: implement
-    
+  useEffect(async () => {
+    if (window.ethereum) { //if Metamask installed
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" }) //get Metamask wallet
+        if (accounts.length) { //if a Metamask account is connected
+          setConnectedStatus(true);
+          setWallet(accounts[0]);
+        } else {
+          setConnectedStatus(false);
+          setStatus("🦊 Connect to Metamask using the top right button.");
+        }
+      } catch {
+        setConnectedStatus(false);
+        setStatus(
+          "🦊 Connect to Metamask using the top right button. " +
+            walletAddress
+        );
+      }
+    }  
   });
 
-  const connectWalletPressed = async () => { //TODO: implement
-   
+  const connectWalletPressed = async () => {
+      const walletResponse = await connectWallet();
+      setConnectedStatus(walletResponse.connectedStatus);
+      setStatus(walletResponse.status);
+      if (isConnected) {
+        setWallet(walletAddress);
+      }
   };
 
   const onMintPressed = async () => { //TODO: implement
@@ -46,18 +67,6 @@ const Minter = (props) => {
           type="text"
           placeholder="e.g. https://gateway.pinata.cloud/ipfs/<hash>"
           onChange={(event) => setURL(event.target.value)}
-        />
-        <h2>🤔 Name: </h2>
-        <input
-          type="text"
-          placeholder="e.g. My first NFT!"
-          onChange={(event) => setName(event.target.value)}
-        />
-        <h2>✍️ Description: </h2>
-        <input
-          type="text"
-          placeholder="e.g. Even cooler than cryptokitties ;)"
-          onChange={(event) => setDescription(event.target.value)}
         />
       </form>
       <button id="mintButton" onClick={onMintPressed}>
